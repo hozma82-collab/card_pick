@@ -286,7 +286,7 @@ function applySuitAbility(suit) {
     gameState.abilities.spadeMultiplier = roundValue(gameState.abilities.spadeMultiplier * 1.1);
   } else if (suit === "heart") {
     // ランク一致倍率の増加幅
-    gameState.abilities.heartMultiplier = roundValue(gameState.abilities.heartMultiplier * 1.1);
+    gameState.abilities.heartMultiplier = roundValue(gameState.abilities.heartMultiplier * 1.13);
   } else if (suit === "club") {
     // 最小値ボーナスの増加幅
     gameState.abilities.clubBonus += 1;
@@ -549,16 +549,16 @@ function showGameClear() {
   const score = gameState.score;
   let comment = "";
   if (score >= 2700) comment = "神";
-  else if (score >= 2600) comment = "アンビリーバブル！";
-  else if (score >= 2500) comment = "パーフェクト！";
-  else if (score >= 2400) comment = "マーベラス！";
-  else if (score >= 2300) comment = "ファンタスティック！";
-  else if (score >= 2200) comment = "アメージング！";
-  else if (score >= 2100) comment = "ワンダフル！";
-  else if (score >= 2000) comment = "グレート！";
-  else if (score >= 1900) comment = "クール！";
-  else if (score >= 1800) comment = "グッド！";
-  else if (score >= 1700) comment = "ナイス！";
+  else if (score >= 2500) comment = "アンビリーバブル！";
+  else if (score >= 2400) comment = "パーフェクト！";
+  else if (score >= 2300) comment = "マーベラス！";
+  else if (score >= 2200) comment = "ファンタスティック！";
+  else if (score >= 2100) comment = "アメージング！";
+  else if (score >= 2000) comment = "ワンダフル！";
+  else if (score >= 1900) comment = "グレート！";
+  else if (score >= 1800) comment = "クール！";
+  else if (score >= 1700) comment = "グッド！";
+  else if (score >= 1600) comment = "ナイス！";
   
   const commentEl = document.getElementById('ui-final-comment');
   commentEl.innerText = comment;
