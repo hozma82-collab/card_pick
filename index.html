@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Score Game</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        
+        <!-- Score Effect Overlay -->
+        <div id="score-effect-overlay" class="score-effect-overlay"></div>
+        
+        <!-- Header: Stage, Turn, Score -->
+        <header id="game-header">
+            <div class="stat-box">ステージ <span id="ui-stage">1</span>/<span id="ui-max-stages">2</span></div>
+            <div class="stat-box">ターン <span id="ui-turn">1</span>/5</div>
+            <div class="stat-box score-box">スコア: <span id="ui-score">0</span></div>
+            
+            <!-- ルール表示アイコン (ホバーで表示) -->
+            <div class="rule-container">
+                <div class="rule-icon">?</div>
+                <div class="rule-tooltip">
+                    <h4>【ゲームルール】</h4>
+                    <ul>
+                        <li><strong>目的:</strong> 10ターンの間にカードを配置し、スコアを稼ぎます。</li>
+                        <li><strong>配置:</strong> 毎ターン5枚ドロー。場(A, B, C)に配置してスコア計算します。キープ枠(1枚)は次ターンに持ち越せます。</li>
+                        <li><strong>リロール:</strong> 1ターン1回、1ステージ3回まで、手札を任意の枚数引き直せます。</li>
+                        <li><strong>スコア計算:</strong> AとB、BとCのランク(数字)からそれぞれ最小・最大値を出し、その範囲の乱数を掛け合わせます。</li>
+                        <li><strong>能力（スート一致）:</strong> A-B, B-Cが同じスートの場合、そのスートの能力が強化されます。</li>
+                        <li>♠：最終スコアに乗算ボーナス<br>♥：ランク一致時の倍率ボーナス<br>♣：乱数最小値アップ<br>♦：乱数最大値アップ</li>
+                        <li><strong>ランク一致ボーナス:</strong> A-B, B-Cの数字が同じ場合、その乱数に1.5倍(＋♥の倍率)のボーナス！</li>
+                        <li><strong>5ターン経過後:</strong> スートを選び直して、累積した能力値が半分になります。</li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main id="main-area">
+            
+            <!-- Left Panel: Abilities & Reroll -->
+            <aside id="left-panel">
+                <div class="abilities-container">
+                    <h3>能力値 (累積)</h3>
+                    <div class="ability"><span class="suit spade">♠</span> 全体倍率: x<span id="ui-spade-mult">1.00000</span></div>
+                    <div class="ability"><span class="suit heart">♥</span> ランク一致倍率: x<span id="ui-heart-mult">1.00000</span></div>
+                    <div class="ability"><span class="suit club">♣</span> 最小値ボーナス: +<span id="ui-club-bonus">0</span></div>
+                    <div class="ability"><span class="suit diamond">♦</span> 最大値ボーナス: +<span id="ui-diamond-bonus">0</span></div>
+                </div>
+                
+                <div class="reroll-container">
+                    <button id="btn-reroll" class="casino-btn">リロール (<span id="ui-reroll-count">0</span>/3)</button>
+                    <p class="help-text">手札から入れ替えるカードを選択してクリック</p>
+                </div>
+            </aside>
+
+            <!-- Center Area: Deck, Keep, Slots -->
+            <section id="center-area">
+                <div id="deck-area">
+                    <div class="area-label">ネクスト３枚</div>
+                    <div id="deck-cards" class="card-container"></div>
+                </div>
+
+                <div id="keep-area">
+                    <div class="area-label">キープ</div>
+                    <div id="keep-slot" class="card-slot keep-slot" data-slot="keep"></div>
+                </div>
+
+                <div id="slots-area">
+                    <div class="area-label">場 (スロット)</div>
+                    <div class="slots-container">
+                        <div class="slot-wrapper">
+                            <div class="slot-label">A</div>
+                            <div id="slot-a" class="card-slot main-slot" data-slot="A"></div>
+                        </div>
+                        <div class="slot-wrapper">
+                            <div class="slot-label">B</div>
+                            <div id="slot-b" class="card-slot main-slot" data-slot="B"></div>
+                        </div>
+                        <div class="slot-wrapper">
+                            <div class="slot-label">C</div>
+                            <div id="slot-c" class="card-slot main-slot" data-slot="C"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Score Calc & Prediction -->
+            <aside id="right-panel">
+                <div class="prediction-container">
+                    <h3>予測スコア</h3>
+                    <div class="pred-box">
+                        <h4>A - B 間</h4>
+                        <p>乱数範囲: <span id="ui-pred-ab-min">?</span> ~ <span id="ui-pred-ab-max">?</span></p>
+                        <p id="ui-pred-ab-match" class="match-text"></p>
+                    </div>
+                    <div class="pred-box">
+                        <h4>B - C 間</h4>
+                        <p>乱数範囲: <span id="ui-pred-bc-min">?</span> ~ <span id="ui-pred-bc-max">?</span></p>
+                        <p id="ui-pred-bc-match" class="match-text"></p>
+                    </div>
+                </div>
+                
+                <div class="calc-action">
+                    <button id="btn-calc-score" class="casino-btn calc-btn" disabled>スコア計算</button>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Bottom Area: Hand -->
+        <footer id="hand-area">
+            <div class="area-label">手札（スコア計算時にすべて捨て札になります）</div>
+            <div id="hand-cards" class="card-container hand-container"></div>
+        </footer>
+
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <!-- Suit Selection Modal -->
+        <div id="suit-modal" class="modal hidden">
+            <h2>スート選択</h2>
+            <p>このステージで使用するスートを2つ選択してください。</p>
+            <div class="suit-selection">
+                <div class="suit-btn" data-suit="spade">
+                    <span class="suit spade">♠</span>
+                    <span class="suit-name">スペード</span>
+                    <span class="suit-desc">スコア全体に<br>乗算ボーナス</span>
+                </div>
+                <div class="suit-btn" data-suit="heart">
+                    <span class="suit heart">♥</span>
+                    <span class="suit-name">ハート</span>
+                    <span class="suit-desc">ランク一致時の<br>倍率アップ</span>
+                </div>
+                <div class="suit-btn" data-suit="club">
+                    <span class="suit club">♣</span>
+                    <span class="suit-name">クラブ</span>
+                    <span class="suit-desc">乱数生成の<br>最小値を底上げ</span>
+                </div>
+                <div class="suit-btn" data-suit="diamond">
+                    <span class="suit diamond">♦</span>
+                    <span class="suit-name">ダイヤ</span>
+                    <span class="suit-desc">乱数生成の<br>最大値を底上げ</span>
+                </div>
+            </div>
+            <button id="btn-confirm-suits" class="casino-btn" disabled>決定</button>
+        </div>
+
+        <!-- Result Modal -->
+        <div id="result-modal" class="modal hidden">
+            <h2>最終スコア</h2>
+            <div class="final-score-display">
+                <span id="ui-final-score">0</span>
+            </div>
+            <div id="ui-final-comment" class="final-comment"></div>
+            <button id="btn-restart" class="casino-btn">もう一度プレイ</button>
+        </div>
+        
+        <!-- Score Result Modal (End of Turn) -->
+        <div id="turn-score-modal" class="modal hidden">
+            <h2>ターン結果</h2>
+            <div id="turn-score-details" class="score-details">
+                <!-- dynamically injected -->
+            </div>
+            <button id="btn-next-turn" class="casino-btn">次のターンへ</button>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
