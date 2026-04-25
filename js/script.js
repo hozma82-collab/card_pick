@@ -548,12 +548,12 @@ function showGameClear() {
   // 最終スコアに応じたコメントの設定
   const score = gameState.score;
   let comment = "";
-  if (score >= 2400) comment = "神";
-  else if (score >= 2350) comment = "アンビリーバブル！";
-  else if (score >= 2300) comment = "パーフェクト！";
-  else if (score >= 2250) comment = "マーベラス！";
-  else if (score >= 2200) comment = "ファンタスティック！";
-  else if (score >= 2150) comment = "アメージング！";
+  if (score >= 2700) comment = "神";
+  else if (score >= 2600) comment = "アンビリーバブル！";
+  else if (score >= 2500) comment = "パーフェクト！";
+  else if (score >= 2400) comment = "マーベラス！";
+  else if (score >= 2300) comment = "ファンタスティック！";
+  else if (score >= 2200) comment = "アメージング！";
   else if (score >= 2100) comment = "ワンダフル！";
   else if (score >= 2000) comment = "グレート！";
   else if (score >= 1900) comment = "クール！";
