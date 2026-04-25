@@ -286,7 +286,7 @@ function applySuitAbility(suit) {
     gameState.abilities.spadeMultiplier = roundValue(gameState.abilities.spadeMultiplier * 1.1);
   } else if (suit === "heart") {
     // ランク一致倍率の増加幅
-    gameState.abilities.heartMultiplier = roundValue(gameState.abilities.heartMultiplier * 1.2);
+    gameState.abilities.heartMultiplier = roundValue(gameState.abilities.heartMultiplier * 1.1);
   } else if (suit === "club") {
     // 最小値ボーナスの増加幅
     gameState.abilities.clubBonus += 1;
